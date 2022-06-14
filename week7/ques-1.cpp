@@ -1,57 +1,62 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-int main(){
-	int N,m;
-	cin >> N >> m;
-	vector<pair<int,int> > adj[N]; 
-
-	int a,b,wt;
-	for(int i = 0; i<m ; i++){
-		cin >> a >> b >> wt;
-		adj[a].push_back(make_pair(b,wt));
-		adj[b].push_back(make_pair(a,wt));
-	}	
-	
-	int parent[N]; 
-      
-    int key[N]; 
-      
-    bool mstSet[N]; 
-  
-    for (int i = 0; i < N; i++) 
-        key[i] = INT_MAX, mstSet[i] = false; 
+void Dijkastras(vector<pair<int,int>> adj[],int n,int src)
+{
+    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>> pq;
+    vector<int> dist(n+1,INT_MAX);
+    vector<int> parent(n+1,0);
+    dist[src]=0;
+    parent[src]=src;
     
-    priority_queue< pair<int,int>, vector <pair<int,int>> , greater<pair<int,int>> > pq;
-
-    key[0] = 0; 
-    parent[0] = -1; 
-    pq.push({0, 0});
-    while(!pq.empty())
-    { 
-        int u = pq.top().second; 
-        pq.pop(); 
+    pq.push({0,src});
+    
+    while (!pq.empty())
+    {
+        int node=pq.top().second;
+        pq.pop();
         
-        mstSet[u] = true; 
-        
-        for (auto it : adj[u]) {
-            int v = it.first;
-            int weight = it.second;
-            if (mstSet[v] == false && weight < key[v])
-            { 
-                parent[v] = u;
-		        key[v] = weight; 
-                pq.push({key[v], v});    
+        for (auto it:adj[node])
+        {
+            if (dist[node]+it.second<dist[it.first])
+            {
+                parent[it.first]=node;
+                dist[it.first]=dist[node]+it.second;
+                pq.push({dist[it.first],it.first});
             }
         }
-            
-    } 
-    int ans=0;
-    for (int i=0;i<N;i++)
-      {
-        if (key[i]!=INT_MAX)
-            ans+=key[i];            
-      }
-	
-    cout<<ans<<endl;
+    }
+    
+    cout<<"shortest paths"<<endl;
+    for (int i=1;i<n+1;i++)
+    {
+        cout<<i<<",";
+        int j=i;
+        while (parent[j]!=1)
+        {
+            j=parent[j];
+            cout<<j<<",";
+        }
+        if (i!=1) cout<<1<<",";
+        cout<<":"<<dist[i]<<endl;
+    }
+}
+
+int main()
+{
+    int n,m;
+    cout<<"enter the number of nodes and edges:";
+    cin>>n>>m;
+    vector<pair<int,int>> adj[n+1];
+    cout<<"enter the source node,target node and weight:"<<endl;
+    for (int i=0;i<m;i++)
+    {
+        int a,b,wt;   
+        cin>>a>>b>>wt;
+        adj[a].push_back({b,wt});
+        adj[b].push_back({a,wt});
+    }
+    
+    Dijkastras(adj,n,1);
+    return 0;
 }
